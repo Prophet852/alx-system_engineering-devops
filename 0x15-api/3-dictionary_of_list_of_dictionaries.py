@@ -1,30 +1,46 @@
 #!/usr/bin/python3
-""" Script that uses JSONPlaceholder API to get information about employee """
+"""
+Exports to-do list information of all employees to JSON format.
+
+This script fetches the user information and to-do lists for all employees
+from the JSONPlaceholder API and exports the data to a JSON file.
+"""
+
 import json
 import requests
-import sys
+
+
+def fetch_user_data():
+    """Fetch user information and to-do lists for all employees."""
+    # Base URL for the JSONPlaceholder API
+    url = "https://jsonplaceholder.typicode.com/"
+
+    # Fetch the list of all users (employees)
+    users = requests.get(url + "users").json()
+
+    # Create a dictionary containing to-do list information of all employees
+    data_to_export = {}
+    for user in users:
+        user_id = user["id"]
+        user_url = url + f"todos?userId={user_id}"
+        todo_list = requests.get(user_url).json()
+
+        data_to_export[user_id] = [
+            {
+                "task": todo.get("title"),
+                "completed": todo.get("completed"),
+                "username": user.get("username"),
+            }
+            for todo in todo_list
+        ]
+
+    return data_to_export
 
 
 if __name__ == "__main__":
-    url = 'https://jsonplaceholder.typicode.com/'
-    user = '{}users'.format(url)
-    res = requests.get(user)
-    json_o = res.json()
-    d_task = {}
-    for user in json_o:
-        name = user.get('username')
-        userid = user.get('id')
-        todos = '{}todos?userId={}'.format(url, userid)
-        res = requests.get(todos)
-        tasks = res.json()
-        l_task = []
-        for task in tasks:
-            dict_task = {"username": name,
-                         "task": task.get('title'),
-                         "completed": task.get('completed')}
-            l_task.append(dict_task)
+    data_to_export = fetch_user_data()
 
-        d_task[str(userid)] = l_task
-    filename = 'todo_all_employees.json'
-    with open(filename, mode='w') as f:
-        json.dump(d_task, f)
+    # Write the data to a JSON file
+    with open("todo_all_employees.json", "w") as jsonfile:
+        json.dump(data_to_export, jsonfile, indent=4)
+

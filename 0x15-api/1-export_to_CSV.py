@@ -1,34 +1,31 @@
-#!/usr/bin/python3
-""" Script that uses JSONPlaceholder API to get information about employee """
-import csv
+
 import requests
 import sys
 
 
 if __name__ == "__main__":
-    url = 'https://jsonplaceholder.typicode.com/'
+    # Get the user ID from the command-line arguments provided to the script
+    user_id = sys.argv[1]
 
-    userid = sys.argv[1]
-    user = '{}users/{}'.format(url, userid)
-    res = requests.get(user)
-    json_o = res.json()
-    name = json_o.get('username')
+    # Define the base URL for the JSON API
+    url = "https://jsonplaceholder.typicode.com/"
 
-    todos = '{}todos?userId={}'.format(url, userid)
-    res = requests.get(todos)
-    tasks = res.json()
-    l_task = []
-    for task in tasks:
-        l_task.append([userid,
-                       name,
-                       task.get('completed'),
-                       task.get('title')])
+    # Fetch user information from the API and
+    #   convert the response to a JSON object
+    user = requests.get(url + "users/{}".format(user_id)).json()
 
-    filename = '{}.csv'.format(userid)
-    with open(filename, mode='w') as employee_file:
-        employee_writer = csv.writer(employee_file,
-                                     delimiter=',',
-                                     quotechar='"',
-                                     quoting=csv.QUOTE_ALL)
-        for task in l_task:
-            employee_writer.writerow(task)
+    # Extract the username from the user data
+    username = user.get("username")
+
+    # Fetch the to-do list items associated with the
+    #   given user ID and convert the response to a JSON object
+    todos = requests.get(url + "todos", params={"userId": user_id}).json()
+
+    # Use list comprehension to iterate over the to-do list items
+    # Write each item's details (user ID, username, completion status,
+    #   and title) as a row in the CSV file
+    with open("{}.csv".format(user_id), "w", newline="") as csvfile:
+        writer = csv.writer(csvfile, quoting=csv.QUOTE_ALL)
+        [writer.writerow(
+            [user_id, username, t.get("completed"), t.get("title")]
+         ) for t in todos]
