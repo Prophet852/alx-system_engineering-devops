@@ -40,8 +40,8 @@ frontend kuwa-la-tech-frontend
 
 backend kuwa-la-tech-backend
     balance roundrobin
-    server 151666-web-01 35.175.104.143:80 check
-    server 151666-web-02 54.83.168.228:80 check
+    server 33424-web-01 35.175.104.143:80 check
+    server 33424-web-02 54.83.168.228:80 check
 "
 
 # shellcheck disable=SC2154
