@@ -4,14 +4,13 @@ Function to query number of subcribers on a given reddit subreddit """
 
 import requests
 
-def number_of_subscribers(subreddit):
-    """Return the total number of subscribers on a given subreddit."""
-    url = "https://www.reddit.com/r/{}/about.json".format(subreddit)
-    headers = {
-            "User-Agent":"linux:0x16.api.advanced:v1.0.0 (by /u/bdov_)"
-    }
-    response = requests.get(url, headers=headers, allow_redirects=False)
-    if response.status_code == 404:
+def get_subreddit_subscribers(subreddit):
+    url = f"https://www.reddit.com/r/{subreddit}/about.json"
+    
+    try:
+        response = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'}).json()
+        subscribers = response['data']['subscribers']
+        return subscribers
+    except:
         return 0
-    results = response.json().get("data")
-    return results.get("subcribers")
+
